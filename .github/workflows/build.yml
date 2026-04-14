@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
     - name: Checkout code
@@ -27,20 +27,21 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip git unzip openjdk-17-jdk
+        sudo apt-get install -y wget unzip
     
     - name: Set up Android SDK
       run: |
         mkdir -p $HOME/android-sdk/cmdline-tools
         cd $HOME/android-sdk/cmdline-tools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
         unzip -q cmdline-tools.zip
         rm cmdline-tools.zip
         mv cmdline-tools latest
-        echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
         $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-31" "build-tools;31.0.0"
-        echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+      env:
+        ANDROID_SDK_ROOT: $HOME/android-sdk
+        PATH: $HOME/android-sdk/cmdline-tools/latest/bin:$PATH
     
     - name: Install Python dependencies
       run: |
@@ -52,6 +53,7 @@ jobs:
       working-directory: .
       env:
         ANDROID_SDK_ROOT: $HOME/android-sdk
+        PATH: $HOME/android-sdk/cmdline-tools/latest/bin:$PATH
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
