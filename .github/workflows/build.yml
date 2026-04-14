@@ -24,12 +24,17 @@ jobs:
       with:
         python-version: '3.10'
     
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip git unzip
+    
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
     
     - name: Install Python dependencies
       run: |
-        pip install buildozer
+        pip3 install buildozer
     
     - name: Build APK with Buildozer
       run: |
